@@ -260,6 +260,12 @@ self.values.append(
 
 It is a small design choice, but it reflects something larger: the designers seem to value elegance, simplicity, and the experience of the programmer. There is a bit of the Ruby philosophy in that idea—the language should not merely satisfy the machine; it should make programming pleasant for the person writing the code.
 
+## A critical note
+
+Mojo 1.0 is an important milestone, but the language is still young compared with Python. Python has decades of production use, an enormous package ecosystem, mature tooling, and a large community. Mojo's libraries, development tools, deployment workflows, and long-term compatibility will need to prove themselves across larger real-world projects.
+
+It is also unclear whether Mojo completely removes the traditional two-language stack. Existing machine-learning systems remain deeply connected to Python, so Mojo may replace C or C++ in performance-sensitive components while leaving teams with a Python-and-Mojo stack instead. How much this simplifies development will depend on the quality of their interoperability and on how much of a production system can realistically be written in Mojo.
+
 ## Why this matters
 
 Taken together, these choices suggest a language that cares deeply about raw performance. About pushing hardware as close to its physical limits as possible, while still valuing elegance, simplicity, and the experience of the person writing the program. That balance is what makes the language interesting to me.
