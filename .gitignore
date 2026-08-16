@@ -1,0 +1,14 @@
+# Environments and caches
+.pixi/
+.venv/
+.mojo_cache/
+__pycache__/
+*.py[cod]
+
+# Generated data and builds
+input.txt
+build/
+
+# Editor and OS files
+.DS_Store
+.vscode/

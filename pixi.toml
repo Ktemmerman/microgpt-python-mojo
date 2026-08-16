@@ -1,0 +1,22 @@
+[workspace]
+name = "microgpt-python-mojo"
+version = "0.1.0"
+description = "A dependency-free character-level GPT in Python and Mojo"
+channels = ["https://conda.modular.com/max/", "conda-forge"]
+platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
+
+[dependencies]
+python = "3.11.*"
+mojo = "==1.0.0"
+curl = "*"
+
+[tasks]
+python = "python microgpt.py"
+mojo = "mojo run microgpt.mojo"
+mojo-build = "mkdir -p build && mojo build -O3 microgpt.mojo -o build/microgpt_mojo"
+mojo-optimized = { cmd = "./build/microgpt_mojo", depends-on = ["mojo-build"] }
+benchmark = "python benchmark.py"
+check-python = "python -m py_compile microgpt.py benchmark.py"
+check-mojo = "mkdir -p build && mojo build microgpt.mojo -o build/microgpt_mojo_check"
+check = { depends-on = ["check-python", "check-mojo"] }
+clean = "rm -rf build __pycache__"
