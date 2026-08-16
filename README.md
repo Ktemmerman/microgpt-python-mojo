@@ -10,12 +10,11 @@ Faster machine-learning workloads can reduce cost, energy use, and latency, whil
 
 The challenge is that performance often comes at the cost of convenience. Python is productive and expressive, but much of its speed comes from lower-level code in C or C++, creating a two-language stack.
 
-Mojo is built around the idea that this trade-off is not inevitable. It aims to combine Python-like usability with systems-level control and performance.
-With Mojo 1.0 now available, this repository is my hands-on exploration of that idea through translating and optimizing a familiar machine-learning program.
+Mojo is built around the idea that this trade-off is not inevitable. It aims to combine Python-like usability with systems-level control and performance. With Mojo 1.0 now available, this repository is my hands-on exploration of that idea through translating and optimizing a familiar machine-learning program.
 
 ## Implementations
 
-An educational implementation of a small character-level GPT, implemented in two programming languages to compare performance and usability:
+This repository contains an educational character-level GPT implemented in two programming languages to compare performance and usability:
 
 | File | Description |
 | --- | --- |
@@ -26,6 +25,7 @@ An educational implementation of a small character-level GPT, implemented in two
 
 This is intentionally a CPU-focused, pedagogical implementation rather than a production training framework. Both versions use one transformer layer, a 16-dimensional embedding, four attention heads, a context length of 16, 1,000 training steps, and fixed random seeds.
 
+The languages use different random-number generators, so their exact losses and generated names are not expected to match. The implementations also use different autograd representations: Python builds an object-based computation graph, while Mojo uses an append-only indexed tape.
 
 ## Requirements
 
@@ -71,11 +71,13 @@ The report includes:
 
 - median end-to-end runtime and speedup;
 - peak resident memory;
-- cold-to-result time;
-- clean Mojo `-O3` build time; and
+- first-invocation time within the benchmark;
+- new-output Mojo `-O3` build time; and
 - the number of runs needed to amortize compilation.
 
-Wall time includes process startup, 1,000 training steps, and sampling. Mojo run mode includes compilation, while the optimized-binary result excludes compilation. Close background applications before recording benchmark results.
+Wall time includes process startup, 1,000 training steps, and sampling. Mojo run mode includes compilation, while the optimized-binary result excludes compilation. The first-invocation figures are not cold-machine measurements because operating-system and compiler caches may already be warm.
+
+This benchmark compares these two educational implementations; it does not isolate language performance. Any speedup reflects the languages, runtimes, compilers, and different autograd representations together. Close background applications before recording results.
 
 ## Development tasks
 
