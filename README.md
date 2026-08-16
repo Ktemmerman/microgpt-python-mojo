@@ -4,6 +4,12 @@
 
 Built and co-authored with [Pi](https://github.com/badlogic/pi-mono).
 
+## Why this repository exists
+
+I am a data scientist: most of my work is analyzing data and training machine-learning models, not writing low-level code tuned for specific hardware. Still, knowing that those models could run much more efficiently has always bothered me. Performance matters because it can reduce infrastructure costs and energy use, lower latency, and create room for larger or more capable models. There is also a simple beauty in efficient software—and writing fast code is fun.
+
+Python is excellent because of its readability, ecosystem, and role as a universal connector, while C++ is compelling for its control and performance. In practice, however, writing and deploying both languages is difficult. The common compromise is a Python interface backed by C or C++, which introduces a two-language development stack. Mojo is tackling exactly this tension: it aims to combine Python-like usability with the control and performance of a systems language. This repository is a small, hands-on experiment with that idea.
+
 ## Project status
 
 The educational implementation is complete and runnable end to end:
