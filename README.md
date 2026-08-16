@@ -2,29 +2,20 @@
 
 > A small, dependency-free character-level GPT, implemented twice to compare a clear Python reference with native Mojo.
 
-Built and co-authored with [Pi](https://github.com/badlogic/pi-mono).
-
 ## Why this repository exists
 
-I am a data scientist: most of my work is analyzing data and training machine-learning models, not writing low-level code tuned for specific hardware. Still, knowing that those models could run much more efficiently has always bothered me. Performance matters because it can reduce infrastructure costs and energy use, lower latency, and create room for larger or more capable models. There is also a deep beauty in efficient software, and writing fast code is fun.
+I am a data scientist and AI engineer, so most of my work happens at a high level: analyzing data, building models, and deploying them. Still, I have always been interested in what happens beneath those abstractions, especially when it comes to performance.
 
-Python is excellent because of its readability, ecosystem, and role as a universal connector, while C++ is compelling for its control and performance. In practice, however, writing and deploying both languages is difficult. The common compromise is a Python interface backed by C or C++, which introduces a two-language development stack. Mojo is tackling exactly this tension: it aims to combine Python-like usability with the control and performance of a systems language.
+Faster machine-learning workloads can reduce cost, energy use, and latency, while enabling larger models. But optimization is also appealing in itself: understanding where resources go, removing overhead, and pushing hardware closer to its limits.
 
-Mojo 1.0 has just been released, making this a good moment to explore how that promise holds up in practice. This repository is a personal, hands-on experiment to understand what Mojo can do, how the language and toolchain work, and how it feels to translate a familiar machine-learning program from Python. It is an exploration rather than a definitive performance study.
+The challenge is that performance often comes at the cost of convenience. Python is productive and expressive, but much of its speed comes from lower-level code in C or C++, creating a two-language stack.
 
-## Project status
-
-The educational implementation is complete and runnable end to end:
-
-- **Python reference:** scalar reverse-mode autograd, training, and sampling.
-- **Mojo port:** the same model structure and hyperparameters, backed by a compact index-based autograd tape.
-- **Optimized build:** the Mojo version can be compiled as a native `-O3` executable.
-- **Benchmark tooling:** compares runtime, speedup, peak memory, cold-start time, build time, and break-even point.
-- **Project checks:** both Python and Mojo currently compile successfully with the locked environment.
-
-This is intentionally a CPU-focused, pedagogical implementation rather than a production training framework. Both versions use one transformer layer, a 16-dimensional embedding, four attention heads, a context length of 16, 1,000 training steps, and fixed random seeds.
+Mojo is built around the idea that this trade-off is not inevitable. It aims to combine Python-like usability with systems-level control and performance.
+With Mojo 1.0 now available, this repository is my hands-on exploration of that idea through translating and optimizing a familiar machine-learning program.
 
 ## Implementations
+
+An educational implementation of a small character-level GPT, implemented in two programming languages to compare performance and usability:
 
 | File | Description |
 | --- | --- |
@@ -33,7 +24,8 @@ This is intentionally a CPU-focused, pedagogical implementation rather than a pr
 | [`benchmark.py`](benchmark.py) | Reproducible runtime and peak-memory comparison |
 | [`FUNFACTS.md`](FUNFACTS.md) | Notes on Mojo, MLIR, compile-time specialization, and ownership |
 
-The implementations share the same architecture and training configuration. Their random-number generators differ, so exact losses and generated names are not expected to match line for line.
+This is intentionally a CPU-focused, pedagogical implementation rather than a production training framework. Both versions use one transformer layer, a 16-dimensional embedding, four attention heads, a context length of 16, 1,000 training steps, and fixed random seeds.
+
 
 ## Requirements
 
@@ -46,8 +38,8 @@ Pixi installs Python 3.11 and Mojo 1.0.0 from the committed lockfile; no separat
 ## Quick start
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/Ktemmerman/microgpt-python-mojo.git
+cd microgpt-python-mojo
 
 pixi run python
 pixi run mojo

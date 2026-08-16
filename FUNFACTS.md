@@ -1,4 +1,4 @@
-# Funfacts about Mojo
+# Mojo
 
 Mojo is interesting to me because it tries to combine Python-like usability with the control and speed expected from a systems language.
 
@@ -9,13 +9,13 @@ The history of ML systems can be viewed as a series of layers that removed diffe
 1. **Performance — BLAS and LAPACK.**The Basic Linear Algebra Subprograms (BLAS) and LAPACK solved the problem of Hardware Primitives. They provided standardized, highly optimized implementations of matrix operations such as general matrix multiply (GEMM). This layer ensures that C = A @ B runs at near-peak silicon speed, regardless of the language calling it. 
 2. **Usability — NumPy.** NumPy solved the problem of Developer Velocity. By wrapping  low-level BLAS routines in high-level Python (Harris et al. 2020), it allowed scientists to write code in a friendly language while executing it in optimized C/Fortran. This “Vectorization” pattern, where the slow language handles logic and the fast language handles loops, became the standard contract for scientific computing. 
 3. **Differentiation — Theano, TensorFlow, and PyTorch.** Deep Learning Frameworks (Theano7, TensorFlow,  PyTorch) solved the problem of Gradient Computation. While NumPy required manual derivation of backpropagation gradients (error-prone and slow), these frameworks introduced Automatic Differentiation via the computational graph. This turned the chain rule into a software primitive, allowing researchers to define forward passes and get backward passes for free.
-4. **Integration — Mojo and Modular.** My interpretation is that Mojo is trying to reduce the complexity created by all these separate layers: a productive high-level language on one side, low-level kernels and hardware-specific code on the other, and many point solutions between them. Mojo's compelling idea is to preserve the usability of python frameworks and combinding it with the **performance and safety of compiled languages such as C++ and Rust**. 
+4. **Integration — Mojo and Modular.** My interpretation is that Mojo is trying to reduce the complexity created by all these separate layers: a productive high-level language on one side, low-level kernels and hardware-specific code on the other, and many point solutions between them. Mojo's idea is to preserve the usability of python and combinding it with the **performance and safety of compiled languages such as C++ and Rust**. 
 
 ## 1. MLIR lets Mojo support multiple compilation modes
 
 One of the interesting things about Mojo is that it supports different ways of executing the same program. Code can be compiled and run directly, or it can be compiled ahead of time into an optimized executable. Importantly, these are not separate language implementations: both are built on the same compiler foundation, based on **MLIR (Multi-Level Intermediate Representation)**.
 
-To see why MLIR is so cool, it helps to think of the compiler as a translator. It gradually turns high-level source code into the low-level instructions that a CPU or GPU can execute.
+MLIR is cool because it gradually turns high-level source code into the low-level instructions that a CPU or GPU can execute in an interesting way.
 
 A traditional compiler often follows a relatively fixed pipeline:
 
@@ -229,7 +229,7 @@ move    → transfer an existing value without duplicating it
 copy    → create a separate independent value
 ```
 
-For performance-sensitive code, that explicitness is valuable. The programmer can see when data is shared, when ownership changes hands, and when memory may actually need to be duplicated, rather than leaving those decisions entirely to implicit runtime behavior.
+For performance-sensitive code, that explicitness is valuable.
 
 ## 4. A choice for elegance and simplicity
 
@@ -260,16 +260,7 @@ self.values.append(
 
 It is a small design choice, but it reflects something larger: the designers seem to value elegance, simplicity, and the experience of the programmer. There is a bit of the Ruby philosophy in that idea—the language should not merely satisfy the machine; it should make programming pleasant for the person writing the code.
 
-
 ## Why this matters
-
-What I like about Mojo is not any single feature, but the way these choices reinforce one another:
-
-* readable, elegant code;
-* explicit control over mutation, ownership, and copying when performance demands it;
-* compile-time knowledge that the compiler can use for specialization;
-* less boilerplate and visual clutter; and
-* a smooth path from development to optimized execution.
 
 Taken together, these choices suggest a language that cares deeply about raw performance. About pushing hardware as close to its physical limits as possible, while still valuing elegance, simplicity, and the experience of the person writing the program. That balance is what makes the language interesting to me.
 
