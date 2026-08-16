@@ -1,21 +1,21 @@
 # Mojo
 
-Mojo is interesting to me because it tries to combine Python-like usability with the control and speed expected from a systems language.
+Mojo is interesting because it tries to combine Python-like usability with the control and speed expected from a systems language.
 
 ## Where Mojo fits in the ML stack
 
 The history of ML systems can be viewed as a series of layers that removed different kinds of complexity:
 
-1. **Performance — BLAS and LAPACK.**The Basic Linear Algebra Subprograms (BLAS) and LAPACK solved the problem of Hardware Primitives. They provided standardized, highly optimized implementations of matrix operations such as general matrix multiply (GEMM). This layer ensures that C = A @ B runs at near-peak silicon speed, regardless of the language calling it. 
-2. **Usability — NumPy.** NumPy solved the problem of Developer Velocity. By wrapping  low-level BLAS routines in high-level Python (Harris et al. 2020), it allowed scientists to write code in a friendly language while executing it in optimized C/Fortran. This “Vectorization” pattern, where the slow language handles logic and the fast language handles loops, became the standard contract for scientific computing. 
-3. **Differentiation — Theano, TensorFlow, and PyTorch.** Deep Learning Frameworks (Theano7, TensorFlow,  PyTorch) solved the problem of Gradient Computation. While NumPy required manual derivation of backpropagation gradients (error-prone and slow), these frameworks introduced Automatic Differentiation via the computational graph. This turned the chain rule into a software primitive, allowing researchers to define forward passes and get backward passes for free.
-4. **Integration — Mojo and Modular.** My interpretation is that Mojo is trying to reduce the complexity created by all these separate layers: a productive high-level language on one side, low-level kernels and hardware-specific code on the other, and many point solutions between them. Mojo's idea is to preserve the usability of python and combinding it with the **performance and safety of compiled languages such as C++ and Rust**. 
+1. **Performance — BLAS and LAPACK.** The Basic Linear Algebra Subprograms (BLAS) and LAPACK solved the problem of hardware primitives. They provided standardized, highly optimized implementations of matrix operations such as general matrix multiplication (GEMM). This layer ensures that `C = A @ B` runs at near-peak silicon speed, regardless of the language calling it.
+2. **Usability — NumPy.** NumPy solved the problem of developer velocity. By wrapping low-level BLAS routines in high-level Python (Harris et al., 2020), it allowed scientists to write code in a friendly language while executing it in optimized C or Fortran. This **vectorization** pattern—where the slow language handles logic and the fast language handles loops—became the standard contract for scientific computing.
+3. **Differentiation — Theano, TensorFlow, and PyTorch.** Deep-learning frameworks such as Theano, TensorFlow, and PyTorch solved the problem of gradient computation. While NumPy required manual derivation of backpropagation gradients—an error-prone and slow process—these frameworks introduced automatic differentiation through a computation graph. This turned the chain rule into a software primitive, allowing researchers to define forward passes and get backward passes for free.
+4. **Integration — Mojo and Modular.** My interpretation is that Mojo is trying to reduce the complexity created by these separate layers: a productive high-level language on one side, low-level kernels and hardware-specific code on the other, and many point solutions between them. Mojo's idea is to preserve Python's usability while combining it with the **performance and safety of compiled languages such as C++ and Rust**.
 
 ## 1. MLIR lets Mojo support multiple compilation modes
 
-One of the interesting things about Mojo is that it supports different ways of executing the same program. Code can be compiled and run directly, or it can be compiled ahead of time into an optimized executable. Importantly, these are not separate language implementations: both are built on the same compiler foundation, based on **MLIR (Multi-Level Intermediate Representation)**.
+One of the interesting things about Mojo is that it supports different ways of executing the same program. Code can be compiled and run directly, or it can be compiled ahead of time into an optimized executable. Both are built on the same compiler foundation, based on **MLIR (Multi-Level Intermediate Representation)**.
 
-MLIR is cool because it gradually turns high-level source code into the low-level instructions that a CPU or GPU can execute in an interesting way.
+What makes MLIR interesting is how it gradually transforms high-level source code into the low-level instructions that a CPU or GPU can execute.
 
 A traditional compiler often follows a relatively fixed pipeline:
 
@@ -69,6 +69,8 @@ CPU or GPU-specific operations
 Machine code
 ```
 
+### Dialects and lowering
+
 MLIR organizes these different representations using **dialects**. A dialect is essentially a vocabulary for describing operations at a particular level of abstraction or for a particular domain. One dialect might understand high-level operations such as:
 
 ```text
@@ -94,6 +96,8 @@ machine instructions
 The advantage is that MLIR does not have to lower an operation immediately. It can keep the high-level meaning around for as long as that information is useful. For example, if the compiler still knows that an operation is a matrix multiplication and the target is a GPU, it can choose a specialized GPU implementation. If that operation had already been converted into thousands of individual loads, multiplications, and additions, recognizing the same opportunity would be much harder.
 
 MLIR therefore gives the compiler the ability to **optimize an operation at the level where it makes the most sense, and only then lower it toward the hardware**.
+
+### Compiler passes and SSA
 
 What makes this especially powerful is that MLIR does not just provide different levels of representation; it also provides a shared set of tools for transforming code between them. Those transformations happen through **compiler passes**. A pass is simply a step that analyzes or rewrites part of the program: removing unnecessary operations, simplifying loops, vectorizing calculations, or converting generic operations into instructions tailored for a CPU or GPU.
 
@@ -121,7 +125,9 @@ x3 = x2 * 2
 
 That may look like a small implementation detail, but it gives the compiler a much clearer picture of where every value comes from and how it flows through the program. That makes analyses and optimizations easier and safer.
 
-Together, dialects, compiler passes, and SSA are what make MLIR more than just a collection of intermediate representations. They form a common framework in which code can remain high-level while that is useful, be optimized at the right level of abstraction, and then be progressively lowered toward the target hardware. For Mojo, that is particularly valuable: the language can expose expressive, high-level features to the programmer while the compiler still has the machinery to specialize the same program for different execution modes and hardware targets.
+Together, dialects, compiler passes, and SSA make MLIR more than just a collection of intermediate representations. They form a common framework in which code can remain high-level for as long as that is useful, be optimized at the right level of abstraction, and then be progressively lowered toward the target hardware. For Mojo, that is particularly valuable: the language can expose expressive, high-level features to the programmer while the compiler still has the machinery to specialize the same program for different execution modes and hardware targets.
+
+### Execution modes in this repository
 
 This repository makes that distinction visible with two commands for [`microgpt.mojo`](microgpt.mojo):
 
@@ -134,7 +140,7 @@ Both enter Mojo's MLIR-based pipeline. `mojo run` compiles and immediately execu
 
 ## 2. MLIR connects high-level Mojo to native code
 
-Another cool feature that MLIR provides, and the one that interests me most about Mojo, is optimization. Because MLIR can optimize code while useful high-level structure is still available, Mojo lets you write the model using normal functions and collection abstractions without having to manually express it in low-level, machine-oriented terms.
+Another aspect of MLIR—and the one that interests me most—is optimization. Because MLIR can optimize code while useful high-level structure is still available, Mojo lets you write the model using normal functions and collection abstractions without having to manually express it in low-level, machine-oriented terms.
 
 The linear layer is a good example:
 
@@ -154,6 +160,8 @@ mojo build -O3 microgpt.mojo -o build/microgpt_mojo
 ```
 
 Where it is safe and useful, those passes can inline function calls, simplify or restructure loops, remove work whose result is unnecessary, vectorize repeated arithmetic, and improve how data is accessed in memory. The key point is that the source can stay readable while the generated program becomes much more specialized.
+
+### Compile-time information
 
 Mojo can also provide the compiler with information that is known **before the program runs**:
 
@@ -193,9 +201,11 @@ def matrix(
     return result^
 ```
 
+### Borrowing, moving, and copying
+
 A few small pieces of syntax tell us how values move through the function.
 
-`mut tape` and `mut rng` mean that the function receives mutable borrows. It is allowed to change those objects, but it does not take ownership of them. When the function returns, the caller still owns the same `Tape` and random-number generator.
+`mut tape` and `mut rng` mean that the function receives mutable borrows. The function may change those objects, but it does not take ownership of them. When the function returns, the caller still owns the same `Tape` and random-number generator.
 
 The `^` operator means something different: it transfers ownership of a value. Once a row has been constructed, `row^` moves that row into `result` rather than creating another copy of it:
 
@@ -233,9 +243,9 @@ For performance-sensitive code, that explicitness is valuable.
 
 ## 4. A choice for elegance and simplicity
 
-This one is less about performance and more about aesthetics: I like language features that make code more elegant and simpler.
+This one is less about performance and more about aesthetics: I like language features that make code more elegant and simple.
 
-Constructors are necessary, but writing them out field by field is often repetitive and just ugly. They add clutter without telling you much that the struct definition does not already say. Mojo's `@fieldwise_init` decorator removes that boilerplate while keeping the actual structure of the type completely visible:
+Constructors are necessary, but writing them out field by field is repetitive and ugly. Mojo's `@fieldwise_init` decorator removes that boilerplate while keeping the actual structure of the type completely visible:
 
 ```mojo
 @fieldwise_init
@@ -266,10 +276,10 @@ Taken together, these choices suggest a language that cares deeply about raw per
 
 ## A critical note
 
-The features above make Mojo's interesting. At the same time, they reveal a central tension. It is tempting to describe Mojo as “Python, but faster,” yet that shorthand hides much of the complexity involved. Mojo does not automatically make Python programs faster. Realizing its largest performance gains often requires developers to understand systems-level concepts such as static typing, memory layout, ownership, pointers, SIMD, and GPU programming. That control is valuable, but it also makes Mojo less simple and approachable than Python.
+**Complexity.** The features above make Mojo interesting, but they also reveal a central tension. It is tempting to describe Mojo as “Python, but faster,” yet that shorthand hides much of the complexity involved. Mojo does not automatically make Python programs faster. Realizing its largest performance gains often requires developers to understand systems-level concepts such as static typing, memory layout, ownership, pointers, SIMD, and GPU programming. That control is valuable, but it also makes Mojo less simple and approachable than Python.
 
-Mojo 1.0 just released, and that is an important milestone, but the language and its ecosystem are still young. Its selection of libraries, development tools, supported platforms, and established deployment practices remains much smaller than those of Python, Rust, or C++. 
+**Ecosystem maturity.** Mojo 1.0 was just released, which is an important milestone, but the language and its ecosystem are still young. Its selection of libraries, development tools, supported platforms, and established deployment practices remains much smaller than those of Python, Rust, or C++.
 
-Python interoperability helps bridge that gap, but it does not guarantee that every library or workflow will transfer seamlessly. It may simplify today's Python-and-C++ stack, but it could also replace it with a new Python-and-Mojo stack.
+**Interoperability.** Python interoperability helps bridge that gap, but it does not guarantee that every library or workflow will transfer seamlessly. Mojo may simplify today's Python-and-C++ stack, but it could also replace it with a new Python-and-Mojo stack.
 
-It also remains to be seen whether Mojo can become a meaningfully better overall alternative to C or C++. Those languages remain widely used after decades not only because of their performance, but also because of their mature compilers, libraries, portability, tooling, and accumulated production experience. Mojo therefore needs to demonstrate more than benchmarks: it must prove reliable and maintainable in large, long-lived systems.
+**Competing with C and C++.** It also remains to be seen whether Mojo can become a meaningfully better overall alternative to C or C++. Those languages remain widely used after decades not only because of their performance, but also because of their mature compilers, libraries, portability, tooling, and accumulated production experience. Mojo therefore needs to demonstrate more than benchmarks: it must prove reliable and maintainable in large, long-lived systems.
